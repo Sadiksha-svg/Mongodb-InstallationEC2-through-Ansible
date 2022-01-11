@@ -1,29 +1,34 @@
----
+--
 - name: Download MongoDB repository and install MongoDB
-  hosts: mongo
+  hosts: all
   become: true
-  
-  tasks:
-    - name: Upgrade all packages
-      yum:
-        name: '*'
-        state: latest
-      
-    - name: Add Mongo repository
-      yum_repository:
-        name: mongodb-org-4.4
-        description: MongoDB Repository Repo
-        baseurl: https://repo.mongodb.org/yum/redhat/$...
-        gpgkey: https://www.mongodb.org/static/pgp/se...
-    
-    - name: Install MongoDB
-      yum: 
-        name: mongodb-org
-        state: present
-        update_cache: yes
 
-    - name: Enable MongoDB to run on boot
-      service: 
-        name: mongod 
-        enabled: yes
-        state: started
+  tasks:
+   - name: Upgrade all packages
+     apt:
+       name: '*'
+       state: latest
+
+   - name: Add Mongo-key Repository
+     apt_key:
+       url: https://www.mongodb.org/static/pgp/server-5.0.asc
+       state: present
+     become: true
+
+   - name: Add Mongo Repository
+     apt_repository:
+       repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse"
+       state: present
+     become: true
+
+   - name: Install MongoDB
+     apt:
+       name: mongodb-org
+       state: present
+
+   - name: Enable MongoDB to run on boot
+     service:
+       name: mongod
+       enabled: yes
+       state: started
+
